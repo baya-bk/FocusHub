@@ -1,6 +1,6 @@
-# StudySync: Collaborative Study App
+# FocusHub: Collaborative Study App
 
-**StudySync** is a modern web application designed to enhance productivity and facilitate group study sessions. Built with **React**, **Node.js**, and **MongoDB**, StudySync offers a suite of features tailored for individuals and teams looking to boost their focus and efficiency.
+**FocusHub** is a modern web application designed to enhance productivity and facilitate group study sessions. Built with **React**, **Node.js**, and **MongoDB**, FocusHub offers a suite of features tailored for individuals and teams looking to boost their focus and efficiency.
 
 ## Key Features
 
@@ -22,8 +22,8 @@
 Clone the repo and install dependencies:
 
 ```bash
-git clone https://github.com/yourusername/studysync.git
-cd studysync
+git clone https://github.com/yourusername/FocusHub.git
+cd FocusHub
 npm install
 ```
 
