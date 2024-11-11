@@ -1,23 +1,32 @@
-import { Sun, Moon } from "@phosphor-icons/react";
+import { Sun, Moon } from "@phosphor-icons/react"; // Import necessary icons
 import { useTheme } from "../context/ThemeProvider";
+import { Button } from "./ui/button";
+import { useState } from "react";
 
 function ModeToggle() {
-  const { setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
+  const [nextTheme, setNextTheme] = useState(getNextTheme(theme));
+
+  function getNextTheme(currentTheme) {
+    switch (currentTheme) {
+      case "light":
+        return "dark";
+      default:
+        return "light";
+    }
+  }
+
+  const handleToggle = () => {
+    setTheme(nextTheme);
+    setNextTheme(getNextTheme(nextTheme));
+  };
 
   return (
-    <div>
-      <button onClick={() => setTheme("light")}>
-        <Sun size={24} />
-        <span>Light</span>
-      </button>
-      <button onClick={() => setTheme("dark")}>
-        <Moon size={24} />
-        <span>Dark</span>
-      </button>
-      <button onClick={() => setTheme("system")}>
-        <span>System</span>
-      </button>
-    </div>
+    <Button onClick={handleToggle} variant="outline" size="icon">
+      {nextTheme === "light" && <Sun size={24} />}
+      {nextTheme === "dark" && <Moon size={24} />}
+      <span className="sr-only">Toggle theme</span>
+    </Button>
   );
 }
 
