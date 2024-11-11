@@ -3,7 +3,7 @@ import ThemeToggle from "./ThemeToggle"; // Toggle for light/dark mode
 
 const Header = () => {
   return (
-    <header className="flex justify-between items-center p-4 bg-gray-800 text-white">
+    <header className="flex justify-between items-center p-1 bg-gray-800 text-white">
       <h1 className="text-xl font-bold">
         <Link to="/">FocusHub</Link>
       </h1>
