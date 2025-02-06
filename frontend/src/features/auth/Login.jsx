@@ -1,15 +1,13 @@
-// src/features/auth/Login.jsx
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { loginUser } from "./authSlice";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const [formData, setFormData] = useState({ email: "", password: "" });
   const dispatch = useDispatch();
-  const { error } = useSelector((state) => state.auth);
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  const navigate = useNavigate();
+  const { isLoading, isError, message } = useSelector((state) => state.auth);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -17,19 +15,21 @@ const Login = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(loginUser(formData));
+    dispatch(loginUser(formData))
+      .unwrap()
+      .then(() => navigate("/dashboard"))
+      .catch(() => {});
   };
 
   return (
     <div>
       <h2>Login</h2>
-      {error && <p className="error">{error}</p>}
+      {isError && <p>{message}</p>}
       <form onSubmit={handleSubmit}>
         <input
           type="email"
           name="email"
           placeholder="Email"
-          value={formData.email}
           onChange={handleChange}
           required
         />
@@ -37,11 +37,12 @@ const Login = () => {
           type="password"
           name="password"
           placeholder="Password"
-          value={formData.password}
           onChange={handleChange}
           required
         />
-        <button type="submit">Login</button>
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? "Logging in..." : "Login"}
+        </button>
       </form>
     </div>
   );

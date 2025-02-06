@@ -1,16 +1,17 @@
-// src/features/auth/Signup.jsx
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { registerUser } from "./authSlice";
+import { signupUser } from "./authSlice";
+import { useNavigate } from "react-router-dom";
 
 const Signup = () => {
-  const dispatch = useDispatch();
-  const { error } = useSelector((state) => state.auth);
   const [formData, setFormData] = useState({
-    username: "",
+    name: "",
     email: "",
     password: "",
   });
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { isLoading, isError, message } = useSelector((state) => state.auth);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -18,19 +19,21 @@ const Signup = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    dispatch(registerUser(formData));
+    dispatch(signupUser(formData))
+      .unwrap()
+      .then(() => navigate("/dashboard"))
+      .catch(() => {});
   };
 
   return (
     <div>
-      <h2>Sign Up</h2>
-      {error && <p className="error">{error}</p>}
+      <h2>Signup</h2>
+      {isError && <p>{message}</p>}
       <form onSubmit={handleSubmit}>
         <input
           type="text"
-          name="username"
-          placeholder="Username"
-          value={formData.username}
+          name="name"
+          placeholder="Name"
           onChange={handleChange}
           required
         />
@@ -38,7 +41,6 @@ const Signup = () => {
           type="email"
           name="email"
           placeholder="Email"
-          value={formData.email}
           onChange={handleChange}
           required
         />
@@ -46,11 +48,12 @@ const Signup = () => {
           type="password"
           name="password"
           placeholder="Password"
-          value={formData.password}
           onChange={handleChange}
           required
         />
-        <button type="submit">Sign Up</button>
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? "Signing up..." : "Signup"}
+        </button>
       </form>
     </div>
   );

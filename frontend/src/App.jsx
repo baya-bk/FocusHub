@@ -1,7 +1,8 @@
-import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
-import Header from "./components/Header"; // Include your Header with ThemeToggle
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Login from "./features/auth/Login";
 import Signup from "./features/auth/Signup";
+import AuthLayout from "./layouts/AuthLayout";
+import MainLayout from "./layouts/MainLayout";
 import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
@@ -11,25 +12,26 @@ import "./styles/index.css"; // Ensure your global styles include theme support
 
 const App = () => {
   return (
-    <Router>
-      <div>
-        {/* Header component with Theme Toggle */}
-        <Header />
+    <BrowserRouter>
+      <Routes>
+        {/* Public routes */}
+        <Route element={<AuthLayout />}>
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+        </Route>
 
-        {/* Main content of the app */}
-        <main>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/study-room" element={<StudyRoom />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </main>
-      </div>
-    </Router>
+        {/* Protected Routes - Requires Authentication */}
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/study-room" element={<StudyRoom />} />
+          <Route path="/profile" element={<Profile />} />
+        </Route>
+
+        {/* 404 Page */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+    </BrowserRouter>
   );
 };
 

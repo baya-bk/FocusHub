@@ -1,65 +1,80 @@
-// src/features/auth/authSlice.jsx  
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';  
-import authService from '../../services/authService';  
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import authService from "../../services/authService";
 
-export const registerUser = createAsyncThunk(  
-    'auth/register',  
-    async (userData, { rejectWithValue }) => {  
-        try {  
-            return await authService.register(userData);  
-        } catch (error) {  
-            return rejectWithValue(error.message);  
-        }  
-    }  
-);  
+const initialState = {
+  user: null,
+  isLoading: false,
+  isError: false,
+  isSuccess: false,
+  message: "",
+};
 
-export const loginUser = createAsyncThunk(  
-    'auth/login',  
-    async (userData, { rejectWithValue }) => {  
-        try {  
-            const user = await authService.login(userData);  
-            localStorage.setItem('token', user.token); // If using tokens  
-            return user;  
-        } catch (error) {  
-            return rejectWithValue(error.message);  
-        }  
-    }  
-);  
+// Async action to log in user
+export const loginUser = createAsyncThunk(
+  "auth/login",
+  async (userData, thunkAPI) => {
+    try {
+      return await authService.login(userData);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data.message);
+    }
+  }
+);
 
-const authSlice = createSlice({  
-    name: 'auth',  
-    initialState: {  
-        user: null,  
-        isAuthenticated: false,  
-        error: null,  
-    },  
-    reducers: {  
-        logout: (state) => {  
-            state.user = null;  
-            state.isAuthenticated = false;  
-            localStorage.removeItem('token');  
-        },  
-    },  
-    extraReducers: (builder) => {  
-        builder  
-            .addCase(registerUser.fulfilled, (state, action) => {  
-                state.user = action.payload;  
-                state.isAuthenticated = true;  
-                state.error = null;  
-            })  
-            .addCase(registerUser.rejected, (state, action) => {  
-                state.error = action.payload;  
-            })  
-            .addCase(loginUser.fulfilled, (state, action) => {  
-                state.user = action.payload;  
-                state.isAuthenticated = true;  
-                state.error = null;  
-            })  
-            .addCase(loginUser.rejected, (state, action) => {  
-                state.error = action.payload;  
-            });  
-    },  
-});  
+// Async action to sign up user
+export const signupUser = createAsyncThunk(
+  "auth/signup",
+  async (userData, thunkAPI) => {
+    try {
+      return await authService.signup(userData);
+    } catch (error) {
+      return thunkAPI.rejectWithValue(error.response.data.message);
+    }
+  }
+);
 
-export const { logout } = authSlice.actions;  
+const authSlice = createSlice({
+  name: "auth",
+  initialState,
+  reducers: {
+    logout: (state) => {
+      state.user = null;
+      state.isSuccess = false;
+      state.isError = false;
+      state.message = "";
+    },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(loginUser.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(loginUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.user = action.payload;
+      })
+      .addCase(loginUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      })
+      // Handling signup
+      .addCase(signupUser.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(signupUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isSuccess = true;
+        state.user = action.payload;
+      })
+      .addCase(signupUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.isError = true;
+        state.message = action.payload;
+      });
+  },
+});
+
+export const { logout } = authSlice.actions;
 export default authSlice.reducer;

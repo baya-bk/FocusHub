@@ -1,40 +1,34 @@
-// src/services/authService.js
+import axios from "axios";
 
-const API_URL = "https://your-api-url.com/api"; // Replace with your actual API endpoint
-
-// Register new user
-const register = async (userData) => {
-  const response = await fetch(`${API_URL}/signup`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(userData),
-  });
-  if (!response.ok) {
-    throw new Error("Failed to register user");
-  }
-  return response.json();
-};
+const API_URL = import.meta.env.VITE_API_URL + "/api/auth";
 
 // Login user
 const login = async (userData) => {
-  const response = await fetch(`${API_URL}/login`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(userData),
-  });
-  if (!response.ok) {
-    throw new Error("Failed to login user");
+  const response = await axios.post(`${API_URL}/login`, userData);
+  if (response.data) {
+    localStorage.setItem("user", JSON.stringify(response.data));
   }
-  return response.json(); // Ensure it returns the token/user object on success
+  return response.data;
+};
+
+// Signup user
+const signup = async (userData) => {
+  const response = await axios.post(`${API_URL}/signup`, userData);
+  if (response.data) {
+    localStorage.setItem("user", JSON.stringify(response.data));
+  }
+  return response.data;
+};
+
+// Logout user
+const logout = () => {
+  localStorage.removeItem("user");
 };
 
 const authService = {
-  register,
   login,
+  signup,
+  logout,
 };
 
 export default authService;
