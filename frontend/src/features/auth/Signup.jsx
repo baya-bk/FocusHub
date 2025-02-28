@@ -5,7 +5,7 @@ import { signupUser } from "./authSlice";
 
 const Signup = () => {
   const [formData, setFormData] = useState({
-    name: "",
+    username: "",
     email: "",
     password: "",
   });
@@ -42,7 +42,7 @@ const Signup = () => {
             </label>
             <input
               type="text"
-              name="name"
+              name="username"
               placeholder="Enter your name"
               onChange={handleChange}
               required
