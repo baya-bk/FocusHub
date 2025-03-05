@@ -9,7 +9,20 @@ const router = express.Router();
 // User Signup
 router.post("/signup", async (req, res) => {
   try {
+    // const { username, email, password } = req.body;
+
+    // // Validate required fields
+    // if (!username || !email || !password) {
+    //   return res.status(400).json({ message: "All fields are required" });
+    // }
+    console.log("Received Signup Data:", req.body); // Debugging
+
     const { username, email, password } = req.body;
+    if (!username || !email || !password) {
+      return res
+        .status(400)
+        .json({ message: "All fields are required", receivedBody: req.body });
+    }
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
@@ -17,14 +30,18 @@ router.post("/signup", async (req, res) => {
       return res.status(400).json({ message: "User already exists" });
     }
 
-    // Hash password
+    // Hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
     // Create new user
-    const newUser = new User({ username, email, password: hashedPassword });
-    await newUser.save();
+    const newUser = new User({
+      username,
+      email,
+      password: hashedPassword,
+    });
 
+    await newUser.save();
     res.status(201).json({ message: "User registered successfully" });
   } catch (err) {
     res.status(500).json({ message: err.message });

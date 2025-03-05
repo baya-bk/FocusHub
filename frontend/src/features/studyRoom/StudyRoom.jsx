@@ -1,4 +1,4 @@
-import RoomList from "../features/studyRoom/RoomList";
+import RoomList from "./RoomList";
 
 const StudyRoom = () => {
   return (
