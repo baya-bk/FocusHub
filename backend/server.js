@@ -5,9 +5,11 @@ const cors = require("cors");
 const http = require("http");
 const { Server } = require("socket.io");
 const userRoutes = require("./routes/userRoutes");
+const studyRoomRoutes = require("./routes/studyRoomRoutes"); // Ensure this file exists
 
 const app = express();
 const server = http.createServer(app);
+
 const io = new Server(server, {
   cors: {
     origin: "*",
@@ -18,7 +20,8 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 app.use("/api/users", userRoutes);
-
+// Register Routes
+app.use("/api/study-rooms", studyRoomRoutes); // Ensure this matches your frontend request
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGO_URI, {
