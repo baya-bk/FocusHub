@@ -9,6 +9,9 @@ import Home from "./pages/Home";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
 import StudyRoom from "./pages/StudyRoom";
+// import RoomDetails from "./features/studyRoom/RoomDetials";
+import RoomSession from "./pages/RoomSession";
+
 import "./styles/index.css"; // Ensure global styles
 
 const App = () => {
@@ -29,6 +32,7 @@ const App = () => {
           <Route element={<MainLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/study-room" element={<StudyRoom />} />
+            <Route path="/study-room/:id" element={<RoomSession />} />
             <Route path="/profile" element={<Profile />} />
           </Route>
         </Route>

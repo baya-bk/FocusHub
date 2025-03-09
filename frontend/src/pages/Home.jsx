@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button"; // Import ShadCN Button
 import { Link } from "react-router-dom";
 import ThemeToggle from "../components/ThemeToggle";
 
@@ -12,17 +13,15 @@ const Home = () => {
       </p>
 
       <div className="flex space-x-4">
-        <Link
-          to="/login"
-          className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700"
-        >
-          Login
+        <Link to="/login">
+          <Button variant="primary" className="px-6 py-2">
+            Login
+          </Button>
         </Link>
-        <Link
-          to="/signup"
-          className="px-6 py-2 bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700"
-        >
-          Sign Up
+        <Link to="/signup">
+          <Button variant="secondary" className="px-6 py-2">
+            Sign Up
+          </Button>
         </Link>
       </div>
     </div>
