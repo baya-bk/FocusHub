@@ -1,55 +1,67 @@
-import { useState, useEffect } from "react";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
+// /frontend/src/features/timer/Pomodoro.jsx
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { useEffect, useState } from "react";
 
-const PomodoroTimer = () => {
+const PomodoroTimer = ({ roomId, socket }) => {
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [isRunning, setIsRunning] = useState(false);
-  const [sessionType, setSessionType] = useState("Work"); // "Work" or "Break"
 
+  // Sync with server updates
   useEffect(() => {
-    let timer;
-    if (isRunning) {
-      timer = setInterval(() => {
-        setTimeLeft((prevTime) => {
-          if (prevTime === 0) {
-            setSessionType((prev) => (prev === "Work" ? "Break" : "Work"));
-            return prev === "Work" ? 5 * 60 : 25 * 60; // Switch durations
-          }
-          return prevTime - 1;
-        });
-      }, 1000);
-    }
-    return () => clearInterval(timer);
-  }, [isRunning, sessionType]);
+    if (!socket) return;
 
-  const formatTime = (seconds) => {
-    const minutes = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${minutes}:${secs < 10 ? "0" : ""}${secs}`;
+    socket.on("updateTimer", ({ time, running }) => {
+      setTimeLeft(time);
+      setIsRunning(running);
+    });
+
+    return () => socket.off("updateTimer");
+  }, [socket]);
+
+  // Control functions
+  const startTimer = () => {
+    if (!isRunning && socket.connected) {
+      socket.emit("updateTimer", { roomId, time: timeLeft, running: true });
+    }
+  };
+
+  const pauseTimer = () => {
+    if (isRunning && socket.connected) {
+      socket.emit("updateTimer", { roomId, time: timeLeft, running: false });
+    }
+  };
+
+  const resetTimer = () => {
+    if (socket.connected) {
+      socket.emit("updateTimer", { roomId, time: 25 * 60, running: false });
+    }
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto mt-6">
+    <Card className="w-full max-w-md mt-4">
       <CardHeader>
-        <h2 className="text-xl font-semibold text-center">
-          {sessionType} Session
-        </h2>
+        <h3 className="text-lg font-semibold">Pomodoro Timer</h3>
       </CardHeader>
       <CardContent className="flex flex-col items-center">
-        <p className="text-4xl font-bold">{formatTime(timeLeft)}</p>
-        <div className="mt-4 flex space-x-3">
-          <Button onClick={() => setIsRunning(!isRunning)}>
-            {isRunning ? "Pause" : "Start"}
+        <div className="text-3xl font-bold">
+          {Math.floor(timeLeft / 60)}:{String(timeLeft % 60).padStart(2, "0")}
+        </div>
+        <div className="flex gap-4 mt-4">
+          <Button
+            onClick={startTimer}
+            disabled={isRunning || !socket?.connected}
+          >
+            Start
           </Button>
           <Button
-            variant="destructive"
-            onClick={() => {
-              setIsRunning(false);
-              setTimeLeft(25 * 60);
-              setSessionType("Work");
-            }}
+            onClick={pauseTimer}
+            variant="secondary"
+            disabled={!isRunning}
           >
+            Pause
+          </Button>
+          <Button onClick={resetTimer} variant="destructive">
             Reset
           </Button>
         </div>

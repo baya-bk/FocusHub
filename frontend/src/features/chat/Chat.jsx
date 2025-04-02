@@ -1,42 +1,28 @@
-// Chat.jsx
-import { useState, useEffect } from "react";
+// /frontend/src/features/chat/Chat.jsx
 import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
 
 const Chat = ({ roomId, socket }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
 
   useEffect(() => {
-    // Listen for incoming messages
     socket.on("receiveMessage", (messageData) => {
-      setMessages((prevMessages) => [...prevMessages, messageData]);
+      setMessages((prev) => [...prev, messageData]);
     });
 
-    return () => {
-      socket.off("receiveMessage"); // Clean up event listener
-    };
-  }, [socket]); //  [socket] as a dependency.  This ensures that the effect only re-runs when the socket instance changes.  This is crucial because you want the component to use the same socket connection throughout its lifecycle.
+    return () => socket.off("receiveMessage");
+  }, [socket]);
 
-  // Send message
   const sendMessage = () => {
-    if (!newMessage.trim()) return;
-
-    const messageData = {
-      roomId,
-      message: newMessage,
-      sender: "User", // Replace with actual username (fetch from user context later)
-    };
-
-    socket.emit("sendMessage", messageData); // Send message to backend
-    setMessages((prevMessages) => [...prevMessages, messageData]); // Optimistically update UI
-    setNewMessage(""); // Clear input
+    if (!newMessage.trim() || !socket.connected) return;
+    const messageData = { roomId, message: newMessage, sender: "User" };
+    socket.emit("sendMessage", messageData);
+    setNewMessage("");
   };
 
   return (
     <div className="flex flex-col h-full">
-      {" "}
-      {/* Added h-full */}
-      {/* Chat Messages */}
       <div className="border p-4 rounded-lg h-72 overflow-y-auto">
         {messages.map((msg, index) => (
           <div key={index} className="mb-2">
@@ -44,10 +30,7 @@ const Chat = ({ roomId, socket }) => {
           </div>
         ))}
       </div>
-      {/* Message Input */}
       <div className="mt-auto flex">
-        {" "}
-        {/* mt-auto pushes this to the bottom */}
         <input
           type="text"
           className="border rounded-lg p-2 w-full"

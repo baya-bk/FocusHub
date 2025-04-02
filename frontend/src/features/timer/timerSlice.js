@@ -1,32 +1,16 @@
+// /frontend/src/features/timer/timerSlice.js
 import { createSlice } from "@reduxjs/toolkit";
-
-const initialState = {
-  time: 25 * 60, // Default 25 minutes
-  isRunning: false,
-};
 
 const timerSlice = createSlice({
   name: "timer",
-  initialState,
+  initialState: { timeLeft: 25 * 60, isRunning: false },
   reducers: {
-    startTimer: (state) => {
-      state.isRunning = true;
-    },
-    stopTimer: (state) => {
-      state.isRunning = false;
-    },
-    resetTimer: (state) => {
-      state.time = 25 * 60;
-      state.isRunning = false;
-    },
-    decrementTime: (state) => {
-      if (state.isRunning && state.time > 0) {
-        state.time -= 1;
-      }
+    updateTimer(state, action) {
+      state.timeLeft = action.payload.time;
+      state.isRunning = action.payload.running;
     },
   },
 });
 
-export const { startTimer, stopTimer, resetTimer, decrementTime } =
-  timerSlice.actions;
+export const { updateTimer } = timerSlice.actions;
 export default timerSlice.reducer;

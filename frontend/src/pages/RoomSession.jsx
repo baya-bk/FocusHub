@@ -1,45 +1,38 @@
-// RoomSession.jsx
+// /frontend/src/pages/RoomSession.jsx
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { io } from "socket.io-client";
-import Chat from "../features/chat/Chat"; // Import the Chat component
-import PomodoroTimer from "../features/timer/Pomodoro"; // Import the Pomodoro component
-
-const socket = io("http://localhost:5000"); // Adjust if using a different backend URL
+import { useSocket } from "../features/chat/useSocket";
+import Chat from "../features/chat/Chat";
+import PomodoroTimer from "../features/timer/Pomodoro";
 
 const RoomSession = () => {
   const { id: roomId } = useParams();
-  const [room, setRoom] = useState(null); // Use state to store room data
+  const socket = useSocket(roomId);
+  const [room, setRoom] = useState(null);
 
   useEffect(() => {
-    // Join the study room
-    socket.emit("joinRoom", roomId);
-
-    // Fetch room details (replace with your actual API call)
     const fetchRoomDetails = async () => {
-      // Mock API call (replace with your actual API endpoint)
-      //Simulate API Call
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      const mockRoomData = {
-        id: roomId,
-        name: "Advanced Algorithms Study",
-        members: ["Alice", "Bob", "Charlie"],
-      };
-      setRoom(mockRoomData);
+      try {
+        const res = await fetch(
+          `http://localhost:5000/api/study-rooms/${roomId}`
+        );
+        const data = await res.json();
+        setRoom(data);
+      } catch (error) {
+        console.error("Error fetching room details:", error);
+      }
     };
 
     fetchRoomDetails();
 
     return () => {
-      socket.emit("leaveRoom", roomId); // Optional: Notify server on leave
+      if (socket) socket.emit("leaveRoom", roomId);
     };
-  }, [roomId]);
+  }, [roomId, socket]);
 
-  if (!room) {
-    return <div>Loading...</div>; // Or a better loading indicator
-  }
+  if (!room || !socket) return <div>Loading...</div>;
 
   return (
     <div className="flex flex-col items-center p-6">
@@ -49,12 +42,9 @@ const RoomSession = () => {
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-4">
-            {/* Chat Section */}
             <div className="col-span-2 border rounded-lg h-72">
               <Chat roomId={roomId} socket={socket} />
             </div>
-
-            {/* Users List */}
             <div className="border p-4 rounded-lg">
               <h3 className="font-semibold">Members</h3>
               <ul className="mt-2">
@@ -66,13 +56,9 @@ const RoomSession = () => {
               </ul>
             </div>
           </div>
-
-          {/* Pomodoro Timer */}
           <div className="mt-4">
-            <PomodoroTimer />
+            <PomodoroTimer roomId={roomId} socket={socket} />
           </div>
-
-          {/* Leave Room Button */}
           <Button variant="destructive" className="mt-4 w-full">
             Leave Room
           </Button>
