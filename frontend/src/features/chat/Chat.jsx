@@ -15,7 +15,7 @@ const Chat = ({ roomId, socket }) => {
   }, [socket]);
 
   const sendMessage = () => {
-    if (!newMessage.trim() || !socket.connected) return;
+    if (!newMessage.trim() || !socket.connected) return; // Prevent sending when disconnected
     const messageData = { roomId, message: newMessage, sender: "User" };
     socket.emit("sendMessage", messageData);
     setNewMessage("");
@@ -23,6 +23,11 @@ const Chat = ({ roomId, socket }) => {
 
   return (
     <div className="flex flex-col h-full">
+      {/* Connection Status Indicator */}
+      {!socket.connected && (
+        <div className="text-red-500">Disconnected - Reconnecting...</div>
+      )}
+
       <div className="border p-4 rounded-lg h-72 overflow-y-auto">
         {messages.map((msg, index) => (
           <div key={index} className="mb-2">

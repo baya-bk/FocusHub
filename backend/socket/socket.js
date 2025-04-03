@@ -30,7 +30,23 @@ export const initializeSocket = (server) => {
 
     socket.on("updateTimer", ({ roomId, time, running }) => {
       if (!rooms[roomId]) {
-        rooms[roomId] = { time: 25 * 60, running: false, interval: null };
+        // socket.js
+        rooms[roomId] = {
+          time: 25 * 60,
+          running: false,
+          interval: null,
+          phase: "work",
+        };
+        if (rooms[roomId].time <= 0) {
+          if (rooms[roomId].phase === "work") {
+            rooms[roomId].time = 5 * 60;
+            rooms[roomId].phase = "break";
+          } else {
+            rooms[roomId].time = 25 * 60;
+            rooms[roomId].phase = "work";
+          }
+          io.to(roomId).emit("updateTimer", rooms[roomId]);
+        }
       }
 
       // Update room state based on client request

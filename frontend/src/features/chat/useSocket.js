@@ -6,6 +6,7 @@ const SOCKET_SERVER_URL = "http://localhost:5000";
 
 export const useSocket = (roomId) => {
   const [socket, setSocket] = useState(null);
+  const [connectionStatus, setConnectionStatus] = useState("disconnected"); // "connected", "disconnected", "reconnecting"
 
   useEffect(() => {
     const newSocket = io(SOCKET_SERVER_URL, {
@@ -18,20 +19,29 @@ export const useSocket = (roomId) => {
 
     newSocket.on("connect", () => {
       console.log(`✅ Connected: ${newSocket.id}`);
+      setConnectionStatus("connected");
       if (roomId) newSocket.emit("joinRoom", roomId);
     });
 
-    newSocket.on("connect_error", (err) =>
-      console.error("❌ Connection error:", err)
-    );
-    newSocket.on("disconnect", (reason) =>
-      console.warn(`⚠️ Disconnected: ${reason}`)
-    );
+    newSocket.on("connect_error", (err) => {
+      console.error("❌ Connection error:", err);
+      setConnectionStatus("disconnected");
+    });
+
+    newSocket.on("disconnect", (reason) => {
+      console.warn(`⚠️ Disconnected: ${reason}`);
+      setConnectionStatus("disconnected");
+    });
+
+    newSocket.on("reconnect_attempt", () => {
+      console.log("🔄 Reconnecting...");
+      setConnectionStatus("reconnecting");
+    });
 
     setSocket(newSocket);
 
     return () => newSocket.disconnect();
   }, [roomId]);
 
-  return socket;
+  return { socket, connectionStatus };
 };
